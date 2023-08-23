@@ -21,9 +21,9 @@ class WindDirectionView extends WatchUi.SimpleDataField {
     }
 
     function getSeverityString(windSpeed as Lang.Float) as Lang.String {
-        if (windSpeed < 15) {
+        if (windSpeed < 2.77778) {
             return "'";
-        } else if (windSpeed < 20) {
+        } else if (windSpeed < 5.5) {
             return "''";
         } else {
             return "'''";
@@ -50,11 +50,14 @@ class WindDirectionView extends WatchUi.SimpleDataField {
             }
             var windBearing = currConditions.windBearing;
 
-            _relativeWindAngle = Math.round(windBearing - currentHeading).toNumber() % 360;
+            if (!(currConditions has :windSpeed) || currConditions.windSpeed == null) {
+                break;
+            }
+            var windSpeed = currConditions.windSpeed;
+
+            _relativeWindAngle = toClockDirection(Math.round(windBearing - currentHeading).toNumber() % 360).toString() + getSeverityString(windSpeed);
         } while(false);
 
-        return (_relativeWindAngle instanceof Lang.String) ?
-                    _relativeWindAngle :
-                    toClockDirection(_relativeWindAngle);
+        return _relativeWindAngle;
     }
 }
