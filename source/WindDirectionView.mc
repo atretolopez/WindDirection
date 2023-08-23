@@ -8,20 +8,27 @@ import Toybox.Position;
 
 class WindDirectionView extends WatchUi.SimpleDataField {
     private const _degreesPerHour = 360 / 12;
-    private var _relativeWindAngle = 0.0;
+    private var _relativeWindAngle as Lang.Number or Lang.String;
 
     function initialize() {
         SimpleDataField.initialize();
-        label = "Relative Wind Direction";
+        label = "Rel Wind";
+        _relativeWindAngle = "N/A";
     }
 
-    function toClockDirection(angle as Lang.Float) as Lang.Number {
-        var direction = (Math.round(angle / _degreesPerHour).toNumber());
-        if (direction < 0) {
-            direction += 12;
+    function toClockDirection(angle as Lang.Number) as Lang.Number {
+        return Math.round((angle / _degreesPerHour)).toNumber();
+    }
+
+    function getSeverityString(windSpeed as Lang.Float) as Lang.String {
+        if (windSpeed < 15) {
+            return "'";
+        } else if (windSpeed < 20) {
+            return "''";
+        } else {
+            return "'''";
         }
 
-        return direction;
     }
 
     function compute(info as Activity.Info) as Numeric or Duration or String or Null {
@@ -35,25 +42,19 @@ class WindDirectionView extends WatchUi.SimpleDataField {
             if (!(info has :currentHeading) || info.currentHeading == null) {
                 break;
             }
-            var currentHeading = info.currentHeading;
+            var currentHeading = Math.toDegrees(info.currentHeading);
 
             var currConditions = Weather.getCurrentConditions();
-            if (currConditions.windBearing == null) {
+            if (!(currConditions has :windBearing) || currConditions.windBearing == null) {
                 break;
             }
+            var windBearing = currConditions.windBearing;
 
-            var relativeWindDirection = currConditions.windBearing - currentHeading;
-            while (relativeWindDirection >= Math.PI) {
-                relativeWindDirection -= 2 * Math.PI;
-            }
-
-            while (relativeWindDirection < (-Math.PI)) {
-                relativeWindDirection += 2 * Math.PI;
-            }
-
-            _relativeWindAngle = Math.toDegrees(relativeWindDirection);
+            _relativeWindAngle = Math.round(windBearing - currentHeading).toNumber() % 360;
         } while(false);
 
-        return toClockDirection(_relativeWindAngle);
+        return (_relativeWindAngle instanceof Lang.String) ?
+                    _relativeWindAngle :
+                    toClockDirection(_relativeWindAngle);
     }
 }
