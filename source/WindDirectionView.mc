@@ -12,12 +12,13 @@ class WindDirectionView extends WatchUi.SimpleDataField {
 
     function initialize() {
         SimpleDataField.initialize();
-        label = "Rel Wind";
+        label = "Relative Wind";
         _relativeWindAngle = "N/A";
     }
 
     function toClockDirection(angle as Lang.Number) as Lang.Number {
-        return Math.round((angle / _degreesPerHour)).toNumber();
+        var direction = Math.round((angle / _degreesPerHour)).toNumber();
+        return (direction == 0) ? 12 : direction;
     }
 
     function getSeverityString(windSpeed as Lang.Float) as Lang.String {
