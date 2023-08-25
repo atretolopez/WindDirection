@@ -1,3 +1,4 @@
 <strings>
-    <string id="AppName">WindDirection</string>
+    <string id="AppName">Relative Wind</string>
+    <string id="Label">Relative Wind</string>
 </strings>
